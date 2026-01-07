@@ -1,0 +1,83 @@
+[gd_scene load_steps=10 format=3 uid="uid://cd62575c2ise8"]
+
+[ext_resource type="Script" uid="uid://c8qk6743ukn16" path="res://player.gd" id="1_kpjcp"]
+[ext_resource type="Texture2D" uid="uid://csgufmyrqmkhl" path="res://images/player.png" id="1_xhfnw"]
+[ext_resource type="Texture2D" uid="uid://c8wxw8kjhbu0n" path="res://images/bone_sword.png" id="3_kne1u"]
+[ext_resource type="Script" uid="uid://crxkj08hxv8nd" path="res://enemy.gd" id="4_cxr5p"]
+[ext_resource type="Texture2D" uid="uid://ckuwdk08pr6fb" path="res://images/Gemini_Generated_Image_dn8ijedn8ijedn8i-Photoroom.png" id="5_tdg3f"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_kpjcp"]
+radius = 7.0
+height = 14.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kpjcp"]
+size = Vector2(22, 9.5)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_dtqjt"]
+radius = 7.0
+height = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_cxr5p"]
+radius = 105.546196
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Player" type="CharacterBody2D" parent="."]
+script = ExtResource("1_kpjcp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(16, 22)
+shape = SubResource("CapsuleShape2D_kpjcp")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player"]
+position = Vector2(16, 16)
+texture = ExtResource("1_xhfnw")
+hframes = 2
+
+[node name="weaponPivot" type="Node2D" parent="Player"]
+position = Vector2(16, 16)
+
+[node name="SwordHitbox" type="Area2D" parent="Player/weaponPivot"]
+position = Vector2(-1, 15)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/weaponPivot/SwordHitbox"]
+position = Vector2(25, -16)
+shape = SubResource("RectangleShape2D_kpjcp")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player/weaponPivot/SwordHitbox/CollisionShape2D"]
+position = Vector2(-1.0000012, 0)
+rotation = 1.5707964
+scale = Vector2(0.39732614, 0.34138948)
+texture = ExtResource("3_kne1u")
+hframes = 2
+
+[node name="attack_cooldown" type="Timer" parent="Player"]
+
+[node name="enemy" type="CharacterBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("4_cxr5p")
+
+[node name="Sprite2D" type="Sprite2D" parent="enemy"]
+position = Vector2(160, 93)
+scale = Vector2(0.099999994, 0.098437496)
+texture = ExtResource("5_tdg3f")
+hframes = 4
+vframes = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="enemy"]
+position = Vector2(160, 95)
+shape = SubResource("CapsuleShape2D_dtqjt")
+
+[node name="DirectionArea" type="Area2D" parent="enemy"]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="enemy/DirectionArea"]
+position = Vector2(160, 95)
+shape = SubResource("CircleShape2D_cxr5p")
+
+[connection signal="body_entered" from="Player/weaponPivot/SwordHitbox" to="Player" method="_on_sword_hitbox_body_entered"]
+[connection signal="body_entered" from="enemy/DirectionArea" to="enemy" method="_on_direction_area_body_entered"]
+[connection signal="body_exited" from="enemy/DirectionArea" to="enemy" method="_on_direction_area_body_exited"]
