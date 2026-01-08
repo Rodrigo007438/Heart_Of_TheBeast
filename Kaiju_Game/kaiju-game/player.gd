@@ -5,7 +5,7 @@ extends CharacterBody2D
 
 @export var atk_duration: float = 0.2
 
-@onready var sprite = $Sprite2D
+@onready var anim_sprite = $AnimatedSprite2D
 @onready var weapon_pivot = $weaponPivot
 @onready var weapon_hitbox = $weaponPivot/SwordHitbox
 @onready var sword_colision = $weaponPivot/SwordHitbox/CollisionShape2D
@@ -30,6 +30,8 @@ func _physics_process(_delta):
 			move_state()
 		State.ATTACK:
 			attk_state()
+	move_and_slide()
+	update_animation()
 			
 func look_at_mouse():
 	var mouse_pos = get_global_mouse_position()
@@ -37,12 +39,36 @@ func look_at_mouse():
 	weapon_pivot.look_at(mouse_pos)
 	
 	if mouse_pos.x < global_position.x:
-		sprite.flip_h = true
+		
 		weapon_pivot.scale.y = -1
 	else:
-		sprite.flip_h = false
+		
 		
 		weapon_pivot.scale.y = 1
+			
+func update_animation():
+	var mouse_pos = get_global_mouse_position()
+	var dir_to_mouse = (mouse_pos - global_position).normalized()
+	
+	var action = "idle"
+	if velocity.length() > 0:
+		action = "run"
+		
+	var suffix = ""
+	
+	if abs(dir_to_mouse.x) > abs(dir_to_mouse.y):
+		suffix = "_side"
+		
+		anim_sprite.flip_h = (dir_to_mouse.x < 0)
+	elif dir_to_mouse.y < 0:
+		suffix = "_up"
+		anim_sprite.flip_h = false
+		
+	else: 
+		suffix = "_down"
+		anim_sprite.flip_h = false
+		
+	anim_sprite.play(action + suffix)
 			
 func move_state():
 	var input_vector = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
@@ -52,7 +78,7 @@ func move_state():
 	else:
 		velocity = Vector2.ZERO
 		
-	move_and_slide()
+	
 	
 	if Input.is_action_just_pressed("attack"):
 		start_attk()
@@ -62,7 +88,7 @@ func start_attk():
 	sword_colision.disabled = false
 	attack_cooldown_timer.start(atk_duration)
 	
-	sprite.modulate = Color(0,1,1)
+	anim_sprite.modulate = Color(0,1,1)
 	
 	
 	
@@ -75,7 +101,7 @@ func attk_state():
 		current_state = State.MOVE
 		sword_colision.disabled = true
 		
-		sprite.modulate = Color(1, 1, 1)
+		anim_sprite.modulate = Color(1, 1, 1)
 		
 
 	
